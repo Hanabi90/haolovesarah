@@ -1,157 +1,84 @@
 /* eslint-disable no-console */
 <template>
   <div class="hello">
-    <ul>
-      <li v-for="(item, index) in list" :key="index" @click="test(index)">
-        {{ item.id }}
-      </li>
-    </ul>
-    <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
-      <p>{{ currentData }}</p>
-    </el-dialog>
-    <el-pagination
-      background
-      :page-size="pagesize"
-      :pager-count="11"
-      layout="prev, pager, next"
-      @current-change="handlechange"
-      :total="100"
-    >
-    </el-pagination>
+   <input type="file" id="file" accept=".txt" @change=uploadfile />
+   <div id="result"> </div>
+      <template v-for="(item,index) in hanzi">
+        <ruby :key="index">{{item}}<rt>{{pinyin[index]}}</rt></ruby>
+      </template>
   </div>
 </template>
 
 <script>
+var pinyin = require("pinyin");
+ var han = /^[\u4e00-\u9fa5]+$/;
+function isChinese(temp){
+  if (han.test(temp)){
+     return true
+  }
+}
 export default {
   name: "HelloWorld",
   data() {
     return {
-      pagesize:6,
-      dialogTableVisible: false,
-      list: [
-        { id: 0, text: "1" },
-        { id: 1, text: "2" },
-        { id: 2, text: "3" },
-        { id: 3, text: "4" },
-        { id: 4, text: "5" },
-        { id: 5, text: "6" }
-      ],
-      database: [
-        [
-          { id: 0, text: "1" },
-          { id: 1, text: "2" },
-          { id: 2, text: "3" },
-          { id: 3, text: "4" },
-          { id: 4, text: "5" },
-          { id: 5, text: "6" }
-        ],
-        [
-          { id: 8, text: "1" },
-          { id: 9, text: "2" },
-          { id: 54, text: "3" },
-          { id: 133, text: "4" },
-          { id: 444, text: "5" },
-          { id: 555, text: "6" }
-        ],
-        [
-          { id: 321, text: "1" },
-          { id: 123, text: "2" },
-          { id: 53454, text: "3" },
-          { id: 634, text: "4" },
-          { id: 345, text: "5" },
-          { id: 678, text: "6" }
-        ]
-      ],
-      currentData: {},
-      currentIndex: 0
+      hanzi:[],
+      pinyin:[],
+      str:''
     };
   },
   props: {
     msg: String
   },
-  watch: {
-    dialogTableVisible(nv) {
-      // eslint-disable-next-line no-console
-      console.log(nv);
-      if (nv) {
-        document.addEventListener("keydown", this.keydown);
-      } else {
-        document.removeEventListener("keydown", this.keydown);
-      }
-    }
+  mounted(){
+    // this.fn()
   },
   methods: {
-    keydown(e) {
-      // eslint-disable-next-line no-console
-      switch (e.keyCode) {
-        case 37:
-          this.handleIndex('down')
-          break;
-        case 39:
-          this.handleIndex('up')
-          break;
-        default:
-          break;
+    uploadfile() {
+      let reads = new FileReader();
+      var file = document.getElementById('file').files[0];
+      reads.readAsText(file, 'utf-8');
+      console.log(reads);
+      var that = this
+      reads.onload = function (e) {
+          // document.getElementById('result').innerText = e.target.result
+          that.str = e.target.result
+          that.fn()
+      };
+      // reads.onloadstart = function(e) {
+      //     console.log('onloadstart ---> ', e)
+      // }
+      // reads.onloadend = function(e) {
+      //     console.log('onloadend ---> ', e)
+      // }
+      // reads.onprogress = function(e) {
+      //     console.log('onprogress ---> ', e)
+      // }
+    },
+    fn(){
+      // var arr =[]
+      var str = this.str
+      // arr = Array.from(str)
+      str = str.replace(/\s*/g,"");
+      var arr2 = []
+      var arr3 = []
+      for (let index = 0; index < str.length; index++) {
+        const item = str[index];
+        if(isChinese(item)){
+          arr2.push(item)
+        }else{
+          arr3.push({index,item})
+        }
       }
-    },
-    test(i) {
-      // eslint-disable-next-line no-console
-      console.log(i);
-      this.getitem()
-      this.currentIndex = i;
-      this.dialogTableVisible = true;
-    },
-    handlechange(val) {
-      // eslint-disable-next-line no-console
-      console.log(val);
-      setTimeout(() => {
-        this.list = this.database[val - 1];
-      }, 200);
-    },
-    getitem() {
-      // this.currentData = this.list[this.currentIndex];
-    },
-    handleIndex(flag){
-      
-      if(flag==='up'){
-        ++this.currentIndex
-        if(this.currentIndex>18){
-          this.currentIndex=18
-          alert('没数据了亲')
-          return
-        }
-        console.log('up')
-        console.log(this.currentIndex)
-        if(this.currentIndex!==1&&this.currentIndex%this.pagesize===1){
-          let pagenum = Math.floor(this.currentIndex / this.pagesize)+1
-          if(pagenum===0){
-            pagenum=1
-          }
-            console.log('翻页',pagenum)
-        }
-        this.getitem()
-        console.log(this.currentIndex)
+      arr2 = arr2.join('')
+      // console.log(arr3)
+      this.hanzi = Array.from(arr2)
+      this.pinyin = pinyin(arr2)
+      // console.log(this.hanzi)
+      for (let i = 0; i < arr3.length; i++) {
+        const item = arr3[i]
+        this.hanzi.splice(item.index,0,item.item)
+        this.pinyin.splice(item.index,0,item.item)
       }
-      if(flag==='down'){
-        console.log('down')
-        --this.currentIndex
-        if(this.currentIndex<1){
-          this.currentIndex=1
-          alert('没数据了亲')
-          return
-        }
-        if(this.currentIndex%this.pagesize===0){
-            let pagenum = Math.floor(this.currentIndex / this.pagesize)
-            if(pagenum===0){
-              pagenum=1
-            }
-            console.log('翻页',pagenum)
-        }
-        this.getitem()
-        console.log(this.currentIndex)
-
-      }
-      
     }
   }
 };
@@ -164,5 +91,12 @@ li {
   padding: 4px;
   border: 1px solid;
   cursor: pointer;
+}
+rt{
+  color: red;
+}
+ruby{
+  margin:2px;
+  line-height: 60px;
 }
 </style>
