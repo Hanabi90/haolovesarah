@@ -117,4 +117,54 @@ function btts(param, options) {
         return false;
     }
 }
-export {btts}
+
+// eslint-disable-next-line no-unused-vars
+function ttt(param, options) {
+    var url = 'https://aip.baidubce.com/rpc/2.0/nlp/v1/lexer';
+    // eslint-disable-next-line no-unused-vars
+    var p = param || {};
+
+    // 如果浏览器支持，可以设置autoplay，但是不能兼容所有浏览器
+
+    // 创建XMLHttpRequest对象
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+
+    // 创建form参数
+    var data = {};
+    for (let p in param) {
+        data[p] = param[p]
+    }
+
+    // 赋值预定义参数
+    data.cuid = data.cuid || data.tok;
+    data.ctp = 1;
+    data.lan = data.lan || 'zh';
+    data.aue = data.aue || 3;
+
+    // 序列化参数列表
+    var fd = [];
+    for(var k in data) {
+        fd.push(k + '=' + encodeURIComponent(data[k]));
+    }
+
+    // 用来处理blob数据
+    xhr.responseType = 'json';
+    xhr.send(fd.join('&'));
+
+    // 用timeout可以更兼容的处理兼容超时
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+            // eslint-disable-next-line no-empty
+            if (xhr.status == 200) {
+
+                }
+                // 用来处理错误
+                // eslint-disable-next-line no-empty
+                if (xhr.response.type === 'application/json') {
+                    console.log(xhr.response.type)
+                }
+            }
+        }
+    }
+export {btts,ttt}

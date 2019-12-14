@@ -15,6 +15,7 @@
       ></textarea>
       <button @click="palyall">播放整句</button>
       <button @click="tabvoice">切换声音</button>
+      <button @click="sendData">发送请求</button>
     </div>
     <div id="result"></div>
     <template v-for="(item, index) in hanzi">
@@ -28,8 +29,9 @@
 </template>
 
 <script>
-// import axios from 'axios'
-import {btts} from '../baidu'
+import axios from "axios";
+
+import { btts, ttt } from "../baidu";
 
 var pinyin = require("pinyin");
 var han = /^[\u4e00-\u9fa5]+$/;
@@ -39,10 +41,6 @@ function isChinese(temp) {
   }
 }
 
-
- 
-
-    
 export default {
   name: "HelloWorld",
   data() {
@@ -51,107 +49,136 @@ export default {
       pinyin: [],
       str: "宝贝是个小流氓",
       tab: false,
-      text:'我',
-      per:[106,110,111,103,5,1,0,3,4],
-      index:0,
-      voice:0
+      text: "我",
+      per: [106, 110, 111, 103, 5, 1, 0, 3, 4],
+      index: 0,
+      voice: 0,
+      postText: ""
     };
   },
   props: {
     msg: String
   },
   mounted() {
-     //dom加载完毕回调后注册按钮对象
-    this.ready(()=> {
-        this.playBtn = document.getElementById('playBtn');
+    //dom加载完毕回调后注册按钮对象
+
+    //  this.bttts()
+    //      axios.post('https://aip.baidubce.com/rpc/2.0/nlp/v1/lexer?charset=UTF-8&access_token=24.b277fbcd3b5e17d6ecad50d687b21d3d.2592000.1578838446.282335-18017265',).then((res)=>{
+    //   console.log(res)
+    // })
+    this.ready(() => {
+      this.playBtn = document.getElementById("playBtn");
     });
 
     // 合成按钮
-    
 
     // dom加载完毕回调
-
   },
   methods: {
-    tabvoice(){
-      this.index++
-      this.index = this.index%this.per.length
-      this.voice = this.per[this.index]
+    sendData() {
+      let params = {
+        text: this.str
+      };
+      axios.post("https://usw1.kubesail.com/", params).then(res => {
+        console.log(res);
+      });
     },
-    palyall(){
-      this.text = this.str
-      this.tts()
+    tabvoice() {
+      this.index++;
+      this.index = this.index % this.per.length;
+      this.voice = this.per[this.index];
     },
-    read(item){
-      this.text = item
-      this.tts()
+    palyall() {
+      this.text = this.str;
+      this.tts();
     },
-    ready(callback){
-        var doc = document;
-        if (doc.addEventListener) {
-            doc.addEventListener('DOMContentLoaded', function() {
-                callback();
-            }, false);
-        } else if (doc.attachEvent) {
-            doc.attachEvent('onreadystatechange', function() {
-                if (doc.readyState === 'complete') {
-                    callback();
-                }
-            });
-        }
+    read(item) {
+      this.text = item;
+      this.tts();
     },
-     tts() {
-        // 调用语音合成接口
-        // 参数含义请参考 https://ai.baidu.com/docs#/TTS-API/41ac79a6
-        // eslint-disable-next-line no-unused-vars
-        var that = this
-        this.audio = btts({
-            tex: this.text,
-            tok: '24.69367dfc2d210de29692d33b10f16cb6.2592000.1578760890.282335-15670276',
-            spd: 3,
-            pit: 5,
-            vol: 15,
-            per: this.voice,
-        }, {
-            volume: 0.3,
-            autoDestory: true,
-            timeout: 10000,
-            hidden: true,
-            onSuccess: (htmlAudioElement)=>{
-              // console.log(htmlAudioElement)
-                that.audio = htmlAudioElement;
-                this.audio.play();
-            },
-            // onError: (text)=> {
-            //     // console.log(text)
-            // },
-            onTimeout:  () =>{
-                // console.log('timeout')
-            }
+    ready(callback) {
+      var doc = document;
+      if (doc.addEventListener) {
+        doc.addEventListener(
+          "DOMContentLoaded",
+          function() {
+            callback();
+          },
+          false
+        );
+      } else if (doc.attachEvent) {
+        doc.attachEvent("onreadystatechange", function() {
+          if (doc.readyState === "complete") {
+            callback();
+          }
         });
+      }
+    },
+    bttts() {
+      // https://aip.baidubce.com/rpc/2.0/nlp/v1/lexer?charset=UTF-8&access_token=24.b277fbcd3b5e17d6ecad50d687b21d3d.2592000.1578838446.282335-18017265
+      ttt({
+        charset: "UTF-8",
+        access_token:
+          "24.b277fbcd3b5e17d6ecad50d687b21d3d.2592000.1578838446.282335-18017265",
+        text: "百度是一家高科技公司"
+      });
+    },
+    tts() {
+      // 调用语音合成接口
+      // 参数含义请参考 https://ai.baidu.com/docs#/TTS-API/41ac79a6
+      // eslint-disable-next-line no-unused-vars
+      var that = this;
+      this.audio = btts(
+        {
+          tex: this.text,
+          tok:
+            "24.69367dfc2d210de29692d33b10f16cb6.2592000.1578760890.282335-15670276",
+          spd: 3,
+          pit: 5,
+          vol: 15,
+          per: this.voice
+        },
+        {
+          volume: 0.3,
+          autoDestory: true,
+          timeout: 10000,
+          hidden: true,
+          onSuccess: htmlAudioElement => {
+            // console.log(htmlAudioElement)
+            that.audio = htmlAudioElement;
+            this.audio.play();
+          },
+          // onError: (text)=> {
+          //     // console.log(text)
+          // },
+          onTimeout: () => {
+            // console.log('timeout')
+          }
+        }
+      );
     },
     // 暂停按钮
-     pause() {
-        if (this.audio === null) {
-            console.log('请先点击合成')
-        } else {
-            this.audio.pause();
-        }
+    pause() {
+      if (this.audio === null) {
+        console.log("请先点击合成");
+      } else {
+        this.audio.pause();
+      }
     },
 
     // 取消按钮
-     cancel() {
-        if (this.audio === null) {
-            alert('请先点击合成')
-        } else {
-            this.audio.pause();
-            document.body.removeChild(this.audio);
-            this.audio = null;
-            this.playBtn.innerText = '准备中';
-        }
+    cancel() {
+      if (this.audio === null) {
+        alert("请先点击合成");
+      } else {
+        this.audio.pause();
+        document.body.removeChild(this.audio);
+        this.audio = null;
+        this.playBtn.innerText = "准备中";
+      }
     },
-    check(){
-      console.log(this.$refs.iframe.document.getElementById('content'))
+    check() {
+      console.log(this.$refs.iframe.document.getElementById("content"));
     },
     uploadfile() {
       let reads = new FileReader();
