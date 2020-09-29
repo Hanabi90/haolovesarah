@@ -60,6 +60,13 @@ export default {
     msg: String
   },
   mounted() {
+    axios.post('https://aip.baidubce.com/oauth/2.0/token',{
+      grant_type:'client_credentials',
+      client_id:'B24nezUbGPP5rVzG6ThQ8LO1',
+      client_secret:'Fd94p0Ws0SMghL3owXmz4HxeOFKkqfxS'
+    }).then((res)=>{
+      console.log(res)
+    })
     //dom加载完毕回调后注册按钮对象
 
     //  this.bttts()
@@ -119,7 +126,7 @@ export default {
       ttt({
         charset: "UTF-8",
         access_token:
-          "24.b277fbcd3b5e17d6ecad50d687b21d3d.2592000.1578838446.282335-18017265",
+          "24.23bfab29758df833b59e95c9aab202b4.2592000.1603988305.282335-15670276",
         text: "百度是一家高科技公司"
       });
     },
@@ -132,7 +139,7 @@ export default {
         {
           tex: this.text,
           tok:
-            "24.69367dfc2d210de29692d33b10f16cb6.2592000.1578760890.282335-15670276",
+            "24.23bfab29758df833b59e95c9aab202b4.2592000.1603988305.282335-15670276",
           spd: 3,
           pit: 5,
           vol: 15,
